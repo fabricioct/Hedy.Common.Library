@@ -4,6 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Fabricio C. Taglialegna</Authors>
     <Company>Hedy</Company>
+    <RepositoryUrl>https://github.com/fabricioct/Hedy.Common.Library</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/fabricioct/Hedy.Common.Library</PackageProjectUrl>
   </PropertyGroup>
 
 </Project>
