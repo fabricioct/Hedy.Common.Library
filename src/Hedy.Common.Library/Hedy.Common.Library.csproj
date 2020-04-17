@@ -6,7 +6,7 @@
     <Company>Hedy</Company>
     <RepositoryUrl>https://github.com/fabricioct/Hedy.Common.Library</RepositoryUrl>
     <PackageProjectUrl>https://www.nuget.org/packages/Hedy.Common.Library/</PackageProjectUrl>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
 </Project>
