@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Hedy.Common.Library.Extension;
 
@@ -110,6 +111,18 @@ namespace Hedy.Common.Library.Helper
             digito += resto;
 
             return cnpj.EndsWith(digito);
+        }
+
+        private static readonly Random random = new Random();
+
+        public static string RandomString(int length)
+        {
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var result = new string(
+                Enumerable.Repeat(chars, length)
+                          .Select(s => s[random.Next(s.Length)])
+                          .ToArray());
+            return result;
         }
     }
 }
