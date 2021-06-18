@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hedy.Common.Library", "src\Hedy.Common.Library\Hedy.Common.Library.csproj", "{142FFA2F-694A-42C2-9429-D94218E9590D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hedy.Common.Library", "src\Hedy.Common.Library\Hedy.Common.Library.csproj", "{142FFA2F-694A-42C2-9429-D94218E9590D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hedy.Common.Library.Test", "Hedy.Common.Library.Test\Hedy.Common.Library.Test.csproj", "{2AD5FC41-AF19-467A-88AF-7347C8C75ADC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{142FFA2F-694A-42C2-9429-D94218E9590D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{142FFA2F-694A-42C2-9429-D94218E9590D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{142FFA2F-694A-42C2-9429-D94218E9590D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AD5FC41-AF19-467A-88AF-7347C8C75ADC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AD5FC41-AF19-467A-88AF-7347C8C75ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AD5FC41-AF19-467A-88AF-7347C8C75ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AD5FC41-AF19-467A-88AF-7347C8C75ADC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
