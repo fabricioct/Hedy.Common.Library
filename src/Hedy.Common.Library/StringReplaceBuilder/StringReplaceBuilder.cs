@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-
-namespace Hedy.Core.Infrastructure.String
+﻿namespace Hedy.Core.Infrastructure.String
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+
     public class StringReplaceBuilder
     {
         private string tagFirst = "#{";
@@ -31,18 +31,35 @@ namespace Hedy.Core.Infrastructure.String
         public StringReplaceBuilder AddTagFirst(string tagFirst)
         {
             this.tagFirst = tagFirst;
+
             return this;
         }
 
         public StringReplaceBuilder AddTagLast(string tagLast)
         {
             this.tagLast = tagLast;
+
             return this;
         }
 
         public StringReplaceBuilder AddTemplate(string template)
         {
             this.template = template;
+
+            return this;
+        }
+
+        public StringReplaceBuilder AddCulture(string culture = "pt-BR")
+        {
+            this.culture = new CultureInfo(culture);
+
+            return this;
+        }
+
+        public StringReplaceBuilder ClearHashTags()
+        {
+            this.tagValues = new Dictionary<string, object>();
+
             return this;
         }
 
@@ -50,7 +67,7 @@ namespace Hedy.Core.Infrastructure.String
         {
             if (string.IsNullOrWhiteSpace(template))
                 throw new ArgumentException("Parameter cannot be null or empty", template);
-            
+
             string tmp = template;
 
             foreach (KeyValuePair<string, object> entry in tagValues)
@@ -83,6 +100,10 @@ namespace Hedy.Core.Infrastructure.String
 
                 case TypeCode.DateTime:
                     valueFomrat = string.Format(culture, "{0:d}", value);
+                    break;
+
+                default:
+                    valueFomrat = value.ToString().Trim();
                     break;
             }
 
