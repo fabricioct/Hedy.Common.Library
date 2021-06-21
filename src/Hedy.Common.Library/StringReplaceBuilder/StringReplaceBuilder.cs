@@ -3,12 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
+    using System.Text.RegularExpressions;
 
     public class ReplaceBuilder
     {
         private string preFix = "#{";
         private string postFix = "}#";
-        private Dictionary<string, HasTag> tagValues = new Dictionary<string, HasTag>();
+        private readonly Dictionary<string, HasTag> tagValues = new Dictionary<string, HasTag>();
         private CultureInfo culture = CultureInfo.GetCultureInfo("pt-BR");
 
         private class HasTag
@@ -20,44 +22,37 @@
             public string Format { get; set; }
         }
 
-        public ReplaceBuilder AddHashTag(string tag, object value)
+        public ReplaceBuilder AddHashTag(string hashTag, object value)
         {
-            this.tagValues.Add(tag, new HasTag() { Tag = tag, Parameters = value });
+            this.tagValues.Add(hashTag, new HasTag() { Tag = hashTag, Parameters = value });
 
             return this;
         }
 
-        public ReplaceBuilder AddHashTag(string tag, object value, string format)
+        public ReplaceBuilder AddHashTag(string hashTag, object value, string format)
         {
-            this.tagValues.Add(tag, new HasTag() { Tag = tag, Parameters = value, Format = format });
+            this.tagValues.Add(hashTag, new HasTag() { Tag = hashTag, Parameters = value, Format = format });
 
             return this;
         }
 
-        public ReplaceBuilder AddTagFirst(string tagFirst)
+        public ReplaceBuilder AddPrefFix(string tagFirst)
         {
             this.preFix = tagFirst;
 
             return this;
         }
 
-        public ReplaceBuilder AddTagLast(string tagLast)
+        public ReplaceBuilder AddPostFix(string tagLast)
         {
             this.postFix = tagLast;
 
             return this;
         }
 
-        public ReplaceBuilder AddCulture(string culture = "pt-BR")
+        public ReplaceBuilder AddCulture(string culture = "en-US")
         {
             this.culture = new CultureInfo(culture);
-
-            return this;
-        }
-
-        public ReplaceBuilder ClearHashTags()
-        {
-            this.tagValues = new  Dictionary<string, HasTag>();
 
             return this;
         }
@@ -89,7 +84,7 @@
                 {
                     var tag = string.Concat(builder.preFix, entry.Key.Trim(), builder.postFix);
 
-                    tmp = tmp.Replace(tag, GetFormatValue(entry.Value));
+                    tmp = Regex.Replace(tmp, tag, GetFormatValue(entry.Value), RegexOptions.IgnoreCase);
                 }
 
                 return tmp;
@@ -99,14 +94,18 @@
             {
                 string valueFomrat;
                 string stFormat = null;
-                
-                if(!string.IsNullOrWhiteSpace(value.Format))
-                    stFormat = string.Concat("{0:", value.Format, "}"); 
+                string[] customMask = { "CNPJ", "CPF", "CEP" };
+
+                if (customMask.Any(x => (value.Format != null) && x.Contains(value.Format)))
+                    return CustomMask(value.Format, value.Parameters.ToString());
+
+                if (!string.IsNullOrWhiteSpace(value.Format))
+                    stFormat = string.Concat("{0:", value.Format.Trim(), "}");
 
                 switch (Type.GetTypeCode(value.Parameters.GetType()))
                 {
                     case TypeCode.Decimal:
-                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:C2}": stFormat, value.Parameters);
+                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:C2}" : stFormat, value.Parameters);
                         break;
 
                     case TypeCode.Int32:
@@ -127,6 +126,32 @@
                 }
 
                 return valueFomrat;
+            }
+
+            public static string CustomMask(string mask, string value)
+            {
+                mask = mask.Trim().ToUpper();
+                value = Regex.Replace(value, @"[^\d]", string.Empty);
+
+                switch (mask)
+                {
+                    case "CPF":
+                        value = Regex.Replace(value, @"(\d{3})(\d{3})(\d{3})(\d{2})", "$1.$2.$3-$4");
+                        break;
+
+                    case "CNPJ":
+                        value = Regex.Replace(value, @"(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})", "$1.$2.$3/$4-$5");
+                        break;
+
+                    case "CEP":
+                        value = Regex.Replace(value, @"(\d{2})(\d{3})(\d{3})", "$1.$2-$3");
+                        break;
+
+                    default:
+                        break;
+                }
+
+                return value;
             }
         }
 

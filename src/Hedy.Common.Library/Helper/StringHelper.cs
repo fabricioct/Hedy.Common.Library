@@ -17,6 +17,11 @@ namespace Hedy.Common.Library.Helper
             return Regex.Replace(cnpj, @"(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})", "$1.$2.$3/$4-$5");
         }
 
+        public static string MaskCep(string cep)
+        {
+            return Regex.Replace(cep, @"(\d{2})(\d{3})(\d{3})", "$1.$2-$3");
+        }
+
         public static bool ValidateCpfOrCnpj(string cpfCnpj)
         {
             return ValidateCnpj(cpfCnpj) || ValidateCpf(cpfCnpj);
