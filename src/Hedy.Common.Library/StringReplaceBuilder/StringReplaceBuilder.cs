@@ -97,7 +97,7 @@
                 string[] customMask = { "CNPJ", "CPF", "CEP" };
 
                 if (customMask.Any(x => (value.Format != null) && x.Contains(value.Format)))
-                    return CustomMask(value.Format, value.Parameters.ToString());
+                    return CustomMask(value.Format, value.Parameters);
 
                 if (!string.IsNullOrWhiteSpace(value.Format))
                     stFormat = string.Concat("{0:", value.Format.Trim(), "}");
@@ -128,30 +128,30 @@
                 return valueFomrat;
             }
 
-            public static string CustomMask(string mask, string value)
+            public static string CustomMask(string mask, object value)
             {
                 mask = mask.Trim().ToUpper();
-                value = Regex.Replace(value, @"[^\d]", string.Empty);
+                var valueRetorno = Regex.Replace(value.ToString(), @"[^\d]", string.Empty);
 
                 switch (mask)
                 {
                     case "CPF":
-                        value = Regex.Replace(value, @"(\d{3})(\d{3})(\d{3})(\d{2})", "$1.$2.$3-$4");
+                        valueRetorno = Regex.Replace(valueRetorno, @"(\d{3})(\d{3})(\d{3})(\d{2})", "$1.$2.$3-$4");
                         break;
 
                     case "CNPJ":
-                        value = Regex.Replace(value, @"(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})", "$1.$2.$3/$4-$5");
+                        valueRetorno = Regex.Replace(valueRetorno, @"(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})", "$1.$2.$3/$4-$5");
                         break;
 
                     case "CEP":
-                        value = Regex.Replace(value, @"(\d{2})(\d{3})(\d{3})", "$1.$2-$3");
+                        valueRetorno = Regex.Replace(valueRetorno, @"(\d{2})(\d{3})(\d{3})", "$1.$2-$3");
                         break;
 
                     default:
                         break;
                 }
 
-                return value;
+                return valueRetorno;
             }
         }
 
