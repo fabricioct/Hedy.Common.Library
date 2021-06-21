@@ -4,110 +4,132 @@
     using System.Collections.Generic;
     using System.Globalization;
 
-    public class StringReplaceBuilder
+    public class ReplaceBuilder
     {
-        private string tagFirst = "#{";
-        private string tagLast = "}#";
-        private Dictionary<string, object> tagValues = new Dictionary<string, object>();
-        private string template = string.Empty;
+        private string preFix = "#{";
+        private string postFix = "}#";
+        private Dictionary<string, HasTag> tagValues = new Dictionary<string, HasTag>();
         private CultureInfo culture = CultureInfo.GetCultureInfo("pt-BR");
 
-        public StringReplaceBuilder()
+        private class HasTag
         {
+            public string Tag { get; set; }
+
+            public object Parameters { get; set; }
+
+            public string Format { get; set; }
         }
 
-        public StringReplaceBuilder(string template)
+        public ReplaceBuilder AddHashTag(string tag, object value)
         {
-            this.template = template;
-        }
-
-        public StringReplaceBuilder AddHashTag(string tag, object value)
-        {
-            this.tagValues.Add(tag, value);
+            this.tagValues.Add(tag, new HasTag() { Tag = tag, Parameters = value });
 
             return this;
         }
 
-        public StringReplaceBuilder AddTagFirst(string tagFirst)
+        public ReplaceBuilder AddHashTag(string tag, object value, string format)
         {
-            this.tagFirst = tagFirst;
+            this.tagValues.Add(tag, new HasTag() { Tag = tag, Parameters = value, Format = format });
 
             return this;
         }
 
-        public StringReplaceBuilder AddTagLast(string tagLast)
+        public ReplaceBuilder AddTagFirst(string tagFirst)
         {
-            this.tagLast = tagLast;
+            this.preFix = tagFirst;
 
             return this;
         }
 
-        public StringReplaceBuilder AddTemplate(string template)
+        public ReplaceBuilder AddTagLast(string tagLast)
         {
-            this.template = template;
+            this.postFix = tagLast;
 
             return this;
         }
 
-        public StringReplaceBuilder AddCulture(string culture = "pt-BR")
+        public ReplaceBuilder AddCulture(string culture = "pt-BR")
         {
             this.culture = new CultureInfo(culture);
 
             return this;
         }
 
-        public StringReplaceBuilder ClearHashTags()
+        public ReplaceBuilder ClearHashTags()
         {
-            this.tagValues = new Dictionary<string, object>();
+            this.tagValues = new  Dictionary<string, HasTag>();
 
             return this;
         }
 
-        public string GetReplace()
+        public class Template
         {
-            if (string.IsNullOrWhiteSpace(template))
-                throw new ArgumentException("Parameter cannot be null or empty", template);
+            private readonly ReplaceBuilder builder;
+            private readonly string template;
 
-            string tmp = template;
-
-            foreach (KeyValuePair<string, object> entry in tagValues)
+            public string RawText
             {
-                var tag = string.Concat(tagFirst, entry.Key.Trim(), tagLast);
-
-                tmp = tmp.Replace(tag, GetFormatValue(entry.Value));
+                get { return ResolveHashTags(); }
             }
 
-            return tmp;
-        }
-
-        private string GetFormatValue(object value)
-        {
-            string valueFomrat = string.Empty;
-
-            switch (Type.GetTypeCode(value.GetType()))
+            public Template(ReplaceBuilder builder, string template)
             {
-                case TypeCode.Decimal:
-                    valueFomrat = string.Format(culture, "{0:C2}", value);
-                    break;
-
-                case TypeCode.Int32:
-                    valueFomrat = value.ToString();
-                    break;
-
-                case TypeCode.String:
-                    valueFomrat = value.ToString().Trim();
-                    break;
-
-                case TypeCode.DateTime:
-                    valueFomrat = string.Format(culture, "{0:d}", value);
-                    break;
-
-                default:
-                    valueFomrat = value.ToString().Trim();
-                    break;
+                this.builder = builder;
+                this.template = template;
             }
 
-            return valueFomrat;
+            private string ResolveHashTags()
+            {
+                if (string.IsNullOrWhiteSpace(template))
+                    throw new ArgumentException("Parameter cannot be null or empty", template);
+
+                string tmp = template;
+
+                foreach (KeyValuePair<string, HasTag> entry in builder.tagValues)
+                {
+                    var tag = string.Concat(builder.preFix, entry.Key.Trim(), builder.postFix);
+
+                    tmp = tmp.Replace(tag, GetFormatValue(entry.Value));
+                }
+
+                return tmp;
+            }
+
+            private string GetFormatValue(HasTag value)
+            {
+                string valueFomrat;
+                string stFormat = null;
+                
+                if(!string.IsNullOrWhiteSpace(value.Format))
+                    stFormat = string.Concat("{0:", value.Format, "}"); 
+
+                switch (Type.GetTypeCode(value.Parameters.GetType()))
+                {
+                    case TypeCode.Decimal:
+                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:C2}": stFormat, value.Parameters);
+                        break;
+
+                    case TypeCode.Int32:
+                        valueFomrat = value.Parameters.ToString();
+                        break;
+
+                    case TypeCode.String:
+                        valueFomrat = value.Parameters.ToString().Trim();
+                        break;
+
+                    case TypeCode.DateTime:
+                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:d}" : stFormat, value.Parameters);
+                        break;
+
+                    default:
+                        valueFomrat = value.ToString().Trim();
+                        break;
+                }
+
+                return valueFomrat;
+            }
         }
+
+        public Template AddTemplate(string template) => new Template(this, template);
     }
 }
