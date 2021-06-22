@@ -17,35 +17,35 @@
         {
             public string Tag { get; set; }
 
-            public object Parameters { get; set; }
+            public object Parameter { get; set; }
 
             public string Format { get; set; }
         }
 
-        public ReplaceBuilder AddHashTag(string hashTag, object value)
+        public ReplaceBuilder AddHashTag(string hashTag, object parameter)
         {
-            this.tagValues.Add(hashTag, new HasTag() { Tag = hashTag, Parameters = value });
+            this.tagValues.Add(hashTag, new HasTag() { Tag = hashTag, Parameter = parameter });
 
             return this;
         }
 
-        public ReplaceBuilder AddHashTag(string hashTag, object value, string format)
+        public ReplaceBuilder AddHashTag(string hashTag, object parameter, string format)
         {
-            this.tagValues.Add(hashTag, new HasTag() { Tag = hashTag, Parameters = value, Format = format });
+            this.tagValues.Add(hashTag, new HasTag() { Tag = hashTag, Parameter = parameter, Format = format });
 
             return this;
         }
 
-        public ReplaceBuilder AddPrefFix(string tagFirst)
+        public ReplaceBuilder AddPrefFix(string preFix)
         {
-            this.preFix = tagFirst;
+            this.preFix = preFix;
 
             return this;
         }
 
-        public ReplaceBuilder AddPostFix(string tagLast)
+        public ReplaceBuilder AddPostFix(string postFix)
         {
-            this.postFix = tagLast;
+            this.postFix = postFix;
 
             return this;
         }
@@ -97,27 +97,27 @@
                 string[] customMask = { "CNPJ", "CPF", "CEP" };
 
                 if (customMask.Any(x => (value.Format != null) && x.Contains(value.Format)))
-                    return CustomMask(value.Format, value.Parameters);
+                    return CustomMask(value.Format, value.Parameter);
 
                 if (!string.IsNullOrWhiteSpace(value.Format))
                     stFormat = string.Concat("{0:", value.Format.Trim(), "}");
 
-                switch (Type.GetTypeCode(value.Parameters.GetType()))
+                switch (Type.GetTypeCode(value.Parameter.GetType()))
                 {
                     case TypeCode.Decimal:
-                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:C2}" : stFormat, value.Parameters);
+                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:C2}" : stFormat, value.Parameter);
                         break;
 
                     case TypeCode.Int32:
-                        valueFomrat = value.Parameters.ToString();
+                        valueFomrat = value.Parameter.ToString();
                         break;
 
                     case TypeCode.String:
-                        valueFomrat = value.Parameters.ToString().Trim();
+                        valueFomrat = value.Parameter.ToString().Trim();
                         break;
 
                     case TypeCode.DateTime:
-                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:d}" : stFormat, value.Parameters);
+                        valueFomrat = string.Format(builder.culture, string.IsNullOrWhiteSpace(stFormat) ? "{0:d}" : stFormat, value.Parameter);
                         break;
 
                     default:
@@ -130,10 +130,9 @@
 
             public static string CustomMask(string mask, object value)
             {
-                mask = mask.Trim().ToUpper();
                 var valueRetorno = Regex.Replace(value.ToString(), @"[^\d]", string.Empty);
 
-                switch (mask)
+                switch (mask.Trim().ToUpper())
                 {
                     case "CPF":
                         valueRetorno = Regex.Replace(valueRetorno, @"(\d{3})(\d{3})(\d{3})(\d{2})", "$1.$2.$3-$4");
