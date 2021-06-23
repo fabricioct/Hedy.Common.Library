@@ -36,16 +36,16 @@
             return this;
         }
 
-        public ReplaceBuilder AddPrefFix(string preFix)
+        public ReplaceBuilder AddPrefFix(string tagFirst)
         {
-            this.preFix = preFix;
+            this.preFix = tagFirst;
 
             return this;
         }
 
-        public ReplaceBuilder AddPostFix(string postFix)
+        public ReplaceBuilder AddPostFix(string tagLast)
         {
-            this.postFix = postFix;
+            this.postFix = tagLast;
 
             return this;
         }
@@ -80,11 +80,11 @@
 
                 string tmp = template;
 
-                foreach (KeyValuePair<string, HasTag> hasTag in builder.tagValues)
+                foreach (KeyValuePair<string, HasTag> entry in builder.tagValues)
                 {
-                    var tag = string.Concat(builder.preFix, hasTag.Key.Trim(), builder.postFix);
+                    var tag = string.Concat(builder.preFix, entry.Key.Trim(), builder.postFix);
 
-                    tmp = Regex.Replace(tmp, tag, GetFormatValue(hasTag.Value), RegexOptions.IgnoreCase);
+                    tmp = Regex.Replace(tmp, tag, GetFormatValue(entry.Value), RegexOptions.IgnoreCase);
                 }
 
                 return tmp;

@@ -12,7 +12,7 @@ namespace Hedy.Common.Library.Helper
             return GetBuilder(uri, null, resource);
         }
 
-        public static UriBuilder GetBuilder(Uri uri, object parameters, params string[] resource)
+        public static UriBuilder GetBuilder(Uri uri, object Parameter, params string[] resource)
         {
             var builder = new UriBuilder(uri)
             {
@@ -21,11 +21,11 @@ namespace Hedy.Common.Library.Helper
 
             var query = HttpUtility.ParseQueryString(builder.Query);
 
-            if (parameters == null)
+            if (Parameter == null)
                 return builder;
 
-            foreach (var propertyInfo in parameters.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
-                query.Add(propertyInfo.Name, propertyInfo.GetValue(parameters).ToString());
+            foreach (var propertyInfo in Parameter.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                query.Add(propertyInfo.Name, propertyInfo.GetValue(Parameter).ToString());
 
             builder.Query = query.ToString();
 
