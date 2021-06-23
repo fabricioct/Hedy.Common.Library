@@ -80,11 +80,11 @@
 
                 string tmp = template;
 
-                foreach (KeyValuePair<string, HasTag> entry in builder.tagValues)
+                foreach (KeyValuePair<string, HasTag> hasTag in builder.tagValues)
                 {
-                    var tag = string.Concat(builder.preFix, entry.Key.Trim(), builder.postFix);
+                    var tag = string.Concat(builder.preFix, hasTag.Key.Trim(), builder.postFix);
 
-                    tmp = Regex.Replace(tmp, tag, GetFormatValue(entry.Value), RegexOptions.IgnoreCase);
+                    tmp = Regex.Replace(tmp, tag, GetFormatValue(hasTag.Value), RegexOptions.IgnoreCase);
                 }
 
                 return tmp;
