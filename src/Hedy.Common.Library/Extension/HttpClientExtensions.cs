@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Net.Http;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text;
-using System.Xml;
 
 namespace Hedy.Common.Library.Extension
 {
@@ -60,7 +59,7 @@ namespace Hedy.Common.Library.Extension
             return JsonSerializer.Deserialize<T>(dataAsString);
         }
 
-        #endregion
+        #endregion - Read/Write JSON Responses -
 
         #region - HeadAsync -
 
@@ -89,8 +88,7 @@ namespace Hedy.Common.Library.Extension
         public static Task<HttpResponseMessage> HeadAsync(
             this HttpClient client,
             Uri requestUri,
-            HttpCompletionOption completionOption
-        )
+            HttpCompletionOption completionOption)
         {
             return client.HeadAsync(requestUri, completionOption, CancellationToken.None);
         }
@@ -98,8 +96,7 @@ namespace Hedy.Common.Library.Extension
         public static Task<HttpResponseMessage> HeadAsync(
             this HttpClient client,
             string requestUri,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
             return client.HeadAsync(new Uri(requestUri), cancellationToken);
         }
@@ -107,8 +104,7 @@ namespace Hedy.Common.Library.Extension
         public static Task<HttpResponseMessage> HeadAsync(
             this HttpClient client,
             Uri requestUri,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
             return client.HeadAsync(requestUri, HttpCompletionOption.ResponseContentRead, cancellationToken);
         }
@@ -117,8 +113,7 @@ namespace Hedy.Common.Library.Extension
             this HttpClient client,
             string requestUri,
             HttpCompletionOption completionOption,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
             return client.HeadAsync(new Uri(requestUri), completionOption, cancellationToken);
         }
@@ -127,14 +122,12 @@ namespace Hedy.Common.Library.Extension
             this HttpClient client,
             Uri requestUri,
             HttpCompletionOption completionOption,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
-            return client.SendAsync(new HttpRequestMessage(HttpMethod.Head, requestUri), completionOption,
-                cancellationToken);
+            return client.SendAsync(new HttpRequestMessage(HttpMethod.Head, requestUri), completionOption, cancellationToken);
         }
 
-        #endregion
+        #endregion - HeadAsync -
 
         #region - SendAsync with Content and Headers -
 
@@ -143,8 +136,7 @@ namespace Hedy.Common.Library.Extension
             HttpMethod method,
             Uri requestUri,
             IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null,
-            HttpContent content = null
-        )
+            HttpContent content = null)
         {
             var request = new HttpRequestMessage(method, requestUri)
             {
@@ -162,7 +154,7 @@ namespace Hedy.Common.Library.Extension
             return client.SendAsync(request);
         }
 
-        #endregion
+        #endregion - SendAsync with Content and Headers -
 
         /// <summary>
         /// This extension method for <see cref="HttpClient"/> provides a convenient overload that accepts
@@ -181,7 +173,7 @@ namespace Hedy.Common.Library.Extension
 
             if (requestBody != null)
             {
-                var json = JsonSerializer.Serialize(requestBody, Formatting.None);
+                var json = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 request.Content = content;
             }
@@ -190,6 +182,7 @@ namespace Hedy.Common.Library.Extension
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var response = await httpClient.SendAsync(request, ct);
+
             return response;
         }
     }
