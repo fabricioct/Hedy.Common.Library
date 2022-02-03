@@ -10,33 +10,35 @@ using System.Xml;
 
 namespace Hedy.Common.Library.Extension
 {
+    /// <summary>
+    /// HttpClientExtensions for Dotnet Core
+    /// see: https://stackoverflow.com/questions/40027299/where-is-postasjsonasync-method-in-asp-net-core
+    /// see: https://jonlabelle.com/snippets/view/csharp/httpclient-extensions
+    /// Related Nuget Package:
+    /// https://github.com/bolorundurowb/aspnetcore-httpclientextensions
+    /// </summary>
     public static class HttpClientExtensions
     {
         #region - Read/Write JSON Responses -
 
-        /// <summary>
-        /// HttpClientExtensions for Dotnet Core
-        /// see: https://stackoverflow.com/questions/40027299/where-is-postasjsonasync-method-in-asp-net-core
-        ///
-        /// Related Nuget Package:
-        /// https://github.com/bolorundurowb/aspnetcore-httpclientextensions
-        /// </summary>
-        public static Task<HttpResponseMessage> PostAsJsonAsync<T>(this HttpClient httpClient, string url, T data)
+
+
+        public static Task<HttpResponseMessage> PostAsJsonAsync<T>(this HttpClient httpClient, Uri url, T data)
         {
             var dataAsString = JsonSerializer.Serialize(data);
             var content = new StringContent(dataAsString);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
+            
             return httpClient.PostAsync(url, content);
         }
 
-        /// <summary>
-        /// HttpClientExtensions for Dotnet Core
-        /// see: https://stackoverflow.com/questions/40027299/where-is-postasjsonasync-method-in-asp-net-core
-        ///
-        /// Related Nuget Package:
-        /// https://github.com/bolorundurowb/aspnetcore-httpclientextensions
-        /// </summary>
+
+        public static Task<HttpResponseMessage> PostAsJsonAsync<T>(this HttpClient httpClient, string url, T data)
+        {                    
+            return httpClient.PostAsJsonAsync(new Uri(url), data);
+        }
+
+
         public static Task<HttpResponseMessage> PutAsJsonAsync<T>(this HttpClient httpClient, string url, T data)
         {
             var dataAsString = JsonSerializer.Serialize(data);
@@ -46,13 +48,7 @@ namespace Hedy.Common.Library.Extension
             return httpClient.PutAsync(url, content);
         }
 
-        /// <summary>
-        /// HttpClientExtensions for Dotnet Core
-        /// see: https://stackoverflow.com/questions/40027299/where-is-postasjsonasync-method-in-asp-net-core
-        ///
-        /// Related Nuget Package:
-        /// https://github.com/bolorundurowb/aspnetcore-httpclientextensions
-        /// </summary>
+
         public static async Task<T> ReadAsJsonAsync<T>(this HttpContent content)
         {
             var dataAsString = await content.ReadAsStringAsync().ConfigureAwait(false);
@@ -64,8 +60,6 @@ namespace Hedy.Common.Library.Extension
 
         #region - HeadAsync -
 
-        // HeadAsync:
-        // https://github.com/microsoft/Git-Credential-Manager-Core/blob/master/src/shared/Microsoft.Git.CredentialManager/HttpClientExtensions.cs
 
         public static Task<HttpResponseMessage> HeadAsync(this HttpClient client, string requestUri)
         {
@@ -89,8 +83,7 @@ namespace Hedy.Common.Library.Extension
         public static Task<HttpResponseMessage> HeadAsync(
             this HttpClient client,
             Uri requestUri,
-            HttpCompletionOption completionOption
-        )
+            HttpCompletionOption completionOption)
         {
             return client.HeadAsync(requestUri, completionOption, CancellationToken.None);
         }
@@ -98,8 +91,7 @@ namespace Hedy.Common.Library.Extension
         public static Task<HttpResponseMessage> HeadAsync(
             this HttpClient client,
             string requestUri,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
             return client.HeadAsync(new Uri(requestUri), cancellationToken);
         }
@@ -107,8 +99,7 @@ namespace Hedy.Common.Library.Extension
         public static Task<HttpResponseMessage> HeadAsync(
             this HttpClient client,
             Uri requestUri,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
             return client.HeadAsync(requestUri, HttpCompletionOption.ResponseContentRead, cancellationToken);
         }
@@ -117,8 +108,7 @@ namespace Hedy.Common.Library.Extension
             this HttpClient client,
             string requestUri,
             HttpCompletionOption completionOption,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
             return client.HeadAsync(new Uri(requestUri), completionOption, cancellationToken);
         }
@@ -127,11 +117,9 @@ namespace Hedy.Common.Library.Extension
             this HttpClient client,
             Uri requestUri,
             HttpCompletionOption completionOption,
-            CancellationToken cancellationToken
-        )
+            CancellationToken cancellationToken)
         {
-            return client.SendAsync(new HttpRequestMessage(HttpMethod.Head, requestUri), completionOption,
-                cancellationToken);
+            return client.SendAsync(new HttpRequestMessage(HttpMethod.Head, requestUri), completionOption, cancellationToken);
         }
 
         #endregion
@@ -143,8 +131,7 @@ namespace Hedy.Common.Library.Extension
             HttpMethod method,
             Uri requestUri,
             IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null,
-            HttpContent content = null
-        )
+            HttpContent content = null)
         {
             var request = new HttpRequestMessage(method, requestUri)
             {
@@ -181,7 +168,8 @@ namespace Hedy.Common.Library.Extension
 
             if (requestBody != null)
             {
-                var json = JsonSerializer.Serialize(requestBody, Formatting.None);
+ 
+                var json = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 request.Content = content;
             }
@@ -190,6 +178,7 @@ namespace Hedy.Common.Library.Extension
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var response = await httpClient.SendAsync(request, ct);
+
             return response;
         }
     }
